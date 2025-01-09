@@ -1,4 +1,4 @@
-CUDA_VISIBLE_DEVICES=0 python train.py --data_root /mnt/d/MyDocs/Datasets/ShanghaiTech/ShanghaiTech_P2PNet \
+CUDA_VISIBLE_DEVICES=-1 python train.py --data_root /home/nicola/Software/CrowdCounting-P2PNet/datasets/part_A_final \
     --dataset_file SHHA \
     --epochs 3500 \
     --lr_drop 3500 \

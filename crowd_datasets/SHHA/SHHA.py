@@ -11,8 +11,8 @@ import scipy.io as io
 class SHHA(Dataset):
     def __init__(self, data_root, transform=None, train=False, patch=False, flip=False):
         self.root_path = data_root
-        self.train_lists = "part_A/train.list"
-        self.eval_list = "part_A/test.list"
+        self.train_lists = "part_A_final/train.list"
+        self.eval_list = "part_A_final/test.list"
         # there may exist multiple list files
         self.img_list_file = self.train_lists.split(',')
         if train:

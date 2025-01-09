@@ -1,6 +1,8 @@
 torch
 torchvision
 tensorboardX
+onnx
+onnxsim
 easydict
 pandas
 numpy
@@ -8,3 +10,4 @@ scipy
 matplotlib
 Pillow
 opencv-python
+tqdm

@@ -16,7 +16,7 @@ os.listdir(os.path.join(root_path, images_path)) if 'jpg' in im]
 
 
 def get_gt_from_image(image_path):
-    gt_path = os.path.dirname(image_path.replace('images', 'ground-truth'))
+    gt_path = os.path.dirname(image_path.replace('images', 'ground_truth'))
     gt_filename = os.path.basename(image_path)
     gt_filename = 'GT_{}'.format(gt_filename.replace('jpg', 'mat'))
     return os.path.join(gt_path, gt_filename)
@@ -28,7 +28,7 @@ def export_dataset(root_path, part_name, output_path):
 
     dataset_splits = ['train', 'test']
     for split in dataset_splits:
-        part_folder = 'part_{}'.format(part_name)
+        part_folder = 'part_{}_final'.format(part_name)
         sub_path = os.path.join(part_folder, '{}_data'.format(split))
         images = get_image_list(root_path, sub_path=sub_path)
 
