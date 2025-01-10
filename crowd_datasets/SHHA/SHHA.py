@@ -1,12 +1,12 @@
 import os
 import random
-import torch
-import numpy as np
-from torch.utils.data import Dataset
-from PIL import Image
+
 import cv2
-import glob
-import scipy.io as io
+import numpy as np
+import torch
+from PIL import Image
+from torch.utils.data import Dataset
+
 
 class SHHA(Dataset):
     def __init__(self, data_root, transform=None, train=False, patch=False, flip=False):
@@ -27,15 +27,15 @@ class SHHA(Dataset):
             train_list = train_list.strip()
             with open(os.path.join(self.root_path, train_list)) as fin:
                 for line in fin:
-                    if len(line) < 2: 
+                    if len(line) < 2:
                         continue
                     line = line.strip().split()
                     self.img_map[os.path.join(self.root_path, line[0].strip())] = \
-                                    os.path.join(self.root_path, line[1].strip())
+                        os.path.join(self.root_path, line[1].strip())
         self.img_list = sorted(list(self.img_map.keys()))
         # number of samples
         self.nSamples = len(self.img_list)
-        
+
         self.transform = transform
         self.train = train
         self.patch = patch
@@ -106,6 +106,7 @@ def load_data(img_gt_path, train):
             points.append([x, y])
 
     return img, np.array(points)
+
 
 # random crop augumentation
 def random_crop(img, den, num_patch=4):

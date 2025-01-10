@@ -1,19 +1,19 @@
-
 import argparse
-import onnxruntime as ort
-import numpy as np
-import torch
-import torch.nn.functional as F
-import torchvision.transforms as standard_transforms
-from PIL import Image
-import cv2
 import os
 import time
 
-def process_one_image(dir_path, img_name, transform, session):#此函数默认batch_size为1
+import cv2
+import numpy as np
+import onnxruntime as ort
+import torch
+import torchvision.transforms as standard_transforms
+from PIL import Image
+
+
+def process_one_image(dir_path, img_name, transform, session):  # 此函数默认batch_size为1
     img_path = os.path.join(dir_path, img_name)
     img_raw = Image.open(img_path).convert('RGB')
-    width, height = img_raw.size #PIL image 宽在前高在后，tensor高在前宽在后
+    width, height = img_raw.size  # PIL image 宽在前高在后，tensor高在前宽在后
     img_raw = img_raw.resize((1280, 768))
     # pre-proccessing
     img = transform(img_raw)
@@ -36,10 +36,7 @@ def process_one_image(dir_path, img_name, transform, session):#此函数默认ba
         t2 = time.time()
         print('time: {}'.format(t2 - t1))
 
-        cnt+=1
-
-
-
+        cnt += 1
 
     # draw the predictions
     size = 2
@@ -47,32 +44,33 @@ def process_one_image(dir_path, img_name, transform, session):#此函数默认ba
     for p in points:
         img_to_draw = cv2.circle(img_to_draw, (int(p[0]), int(p[1])), size, (0, 0, 255), -1)
     # save the visualized image
-    #cv2.imshow('result', img_to_draw)
-    #cv2.waitKey(0)
-    #cv2.destroyAllWindows()
+    # cv2.imshow('result', img_to_draw)
+    # cv2.waitKey(0)
+    # cv2.destroyAllWindows()
     cv2.imwrite(os.path.join(args.output_dir, img_name.replace('.jpg', 'pred{}.jpg'.format(predict_cnt))), img_to_draw)
 
 
 def main(args):
-    #读取模型
+    # 读取模型
     weight_path = args.weight_path
     cuda = args.cuda
     providers = ['CUDAExecutionProvider', 'CPUExecutionProvider'] if cuda else ['CPUExecutionProvider']
     session = ort.InferenceSession(weight_path, providers=providers)
-    #定义数据预处理的正则化部分
+    # 定义数据预处理的正则化部分
     transform = standard_transforms.Compose([
-            standard_transforms.ToTensor(),
-            standard_transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
-        ])
-    #读取图片
+        standard_transforms.ToTensor(),
+        standard_transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+    ])
+    # 读取图片
     dir_path = args.input_dir
     img_paths = [i for i in os.listdir(dir_path) if 'jpg' in i]
-    #img_paths = ['3_2_89.jpg']
+    # img_paths = ['3_2_89.jpg']
     for img_name in img_paths:
         t1 = time.time()
         process_one_image(dir_path, img_name, transform, session)
         t2 = time.time()
         print('{} spend time: {}'.format(img_name, t2 - t1))
+
 
 def get_args_parser():
     parser = argparse.ArgumentParser('Set parameters for P2PNet evaluation by onnx', add_help=False)
@@ -87,6 +85,7 @@ def get_args_parser():
     parser.add_argument('--cuda', action='store_true', help='if use cuda')
 
     return parser
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser('P2PNet_onnx evaluation script', parents=[get_args_parser()])

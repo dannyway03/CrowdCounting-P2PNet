@@ -1,5 +1,7 @@
-import cv2
 import os
+
+import cv2
+
 
 def images_to_video(images_folder, output_video_path, fps=30):
     # 获取文件夹中所有图片的路径
@@ -16,6 +18,7 @@ def images_to_video(images_folder, output_video_path, fps=30):
         video.write(image)
     # 释放视频对象
     video.release()
+
 
 # 调用函数，将./images文件夹中的图片合成./output.mp4视频
 images_to_video('/mnt/d/MyDocs/Datasets/mall_dataset/frames', './origin.mp4')
@@ -46,5 +49,3 @@ print('生成成功')
 # video_out.release()
 # cv2.destroyAllWindows()
 # print('生成成功')
-
-

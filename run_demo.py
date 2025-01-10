@@ -1,21 +1,12 @@
 import argparse
-import datetime
-import random
-import time
-from pathlib import Path
-
-import torch
-import torchvision.transforms as standard_transforms
-import numpy as np
-
-from PIL import Image
-import cv2
-from crowd_datasets import build_dataset
-from engine import *
-from models import build_model
+import glob
 import os
 import warnings
-import glob
+
+from PIL import Image
+
+from engine import *
+from models import build_model
 
 warnings.filterwarnings('ignore')
 
@@ -76,11 +67,11 @@ def Predict(model, img_path, transform, device):
     for p in points:
         img_to_draw = cv2.circle(img_to_draw, (int(p[0]), int(p[1])), size, (0, 0, 255), -1)
 
-    cv2.putText(img_to_draw, f'Predict Crowd Count: {predict_cnt}', (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)  # 在图片上写文字
+    cv2.putText(img_to_draw, f'Predict Crowd Count: {predict_cnt}', (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0),
+                2)  # 在图片上写文字
     # save the visualized image
     # cv2.imwrite(os.path.join(args.output_dir, 'pred{}.jpg'.format(predict_cnt)), img_to_draw)
     return img_to_draw
-
 
 
 def main(args, debug=False):
@@ -125,13 +116,10 @@ def main(args, debug=False):
     print('生成成功')
 
 
-
-
 if __name__ == '__main__':
     parser = argparse.ArgumentParser('P2PNet evaluation script', parents=[get_args_parser()])
     args = parser.parse_args()
     main(args)
-
 
 # import cv2
 # import matplotlib.pyplot as plt

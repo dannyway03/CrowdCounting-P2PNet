@@ -1,15 +1,13 @@
-
 import argparse
+import time
+
+import cv2
+import numpy as np
 import onnxruntime as ort
 import torch
 import torchvision.transforms as standard_transforms
-import cv2
-import time
-
-import numpy as np
-from scipy.spatial import KDTree
 from scipy.ndimage import gaussian_filter
-import matplotlib.pyplot as plt
+from scipy.spatial import KDTree
 
 
 def gaussian_filter_density(img_shape, points):
@@ -57,7 +55,8 @@ def gaussian_filter_density(img_shape, points):
     print('Density map generation complete.')
     return density
 
-def process_one_image(samples, transform, session):#此函数默认batch_size为1
+
+def process_one_image(samples, transform, session):  # 此函数默认batch_size为1
 
     ort_inputs = {'images': samples.numpy()}
     pred_logits, pred_points = session.run(['pred_logits', 'pred_points'], ort_inputs)
@@ -71,18 +70,19 @@ def process_one_image(samples, transform, session):#此函数默认batch_size为
 
     return points, predict_cnt
 
+
 def main(args):
-    #读取模型
+    # 读取模型
     weight_path = args.weight_path
     providers = ['CPUExecutionProvider']
     session = ort.InferenceSession(weight_path, providers=providers)
-    b,c,h,w = session.get_inputs()[0].shape
+    b, c, h, w = session.get_inputs()[0].shape
 
-    #定义数据预处理的正则化部分
+    # 定义数据预处理的正则化部分
     transform = standard_transforms.Compose([
-            standard_transforms.ToTensor(),
-            standard_transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
-        ])
+        standard_transforms.ToTensor(),
+        standard_transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+    ])
 
     cap = cv2.VideoCapture(args.input_video)
     width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
@@ -103,7 +103,7 @@ def main(args):
             points, count = process_one_image(samples, transform, session)
 
             t2 = time.time()
-            print('time: {}'.format( t2 - t1), flush=True)
+            print('time: {}'.format(t2 - t1), flush=True)
 
             # draw the predictions
             img_to_draw = cv2.cvtColor(np.array(frame), cv2.COLOR_RGB2BGR)
@@ -130,14 +130,17 @@ def main(args):
             # cv2.imshow("Density Map", colored_density)
             cv2.waitKey(1)
 
+
 def get_args_parser():
     parser = argparse.ArgumentParser('Set parameters for P2PNet evaluation by onnx', add_help=False)
 
     parser.add_argument('--input_video', default='/home/nicola/Software/CrowdCounting-P2PNet/testData/demo.mp4',
                         help='path where to read images')
-    parser.add_argument('--weight_path', default='/home/nicola/Software/CrowdCounting-P2PNet/weights/onnx/SHTechA_576x960.onnx',
+    parser.add_argument('--weight_path',
+                        default='/home/nicola/Software/CrowdCounting-P2PNet/weights/onnx/SHTechA_576x960.onnx',
                         help='path where the trained weights saved')
     return parser
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser('P2PNet_onnx evaluation script', parents=[get_args_parser()])

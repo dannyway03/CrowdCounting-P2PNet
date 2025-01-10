@@ -1,4 +1,3 @@
-
 # Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved
 """
 Mostly copy-paste from DETR (https://github.com/facebookresearch/detr).

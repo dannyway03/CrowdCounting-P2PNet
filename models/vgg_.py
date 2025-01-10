@@ -2,17 +2,17 @@
 """
 Mostly copy-paste from torchvision references.
 """
+import os
+import urllib.request
+
 import torch
 import torch.nn as nn
-import os
 from tqdm import tqdm
-import urllib.request
 
 __all__ = [
     'VGG', 'vgg11', 'vgg11_bn', 'vgg13', 'vgg13_bn', 'vgg16', 'vgg16_bn',
     'vgg19_bn', 'vgg19',
 ]
-
 
 model_urls = {
     'vgg11': 'https://download.pytorch.org/models/vgg11-bbd30ac9.pth',
@@ -28,14 +28,14 @@ model_urls = {
 checkpoints_dir = os.path.join(os.path.dirname(__file__), "../checkpoints/")
 
 model_paths = {
-    'vgg11': os.path.join(checkpoints_dir,'vgg11-bbd30ac9.pth'),
-    'vgg13': os.path.join(checkpoints_dir,'vgg13-c768596a.pth'),
-    'vgg16': os.path.join(checkpoints_dir,'vgg16-397923af.pth'),
-    'vgg19': os.path.join(checkpoints_dir,'vgg19-dcbb9e9d.pth'),
-    'vgg11_bn': os.path.join(checkpoints_dir,'vgg11_bn-6002323d.pth'),
-    'vgg13_bn': os.path.join(checkpoints_dir,'vgg13_bn-abd245e5.pth'),
-    'vgg16_bn': os.path.join(checkpoints_dir,'vgg16_bn-6c64b313.pth'),
-    'vgg19_bn': os.path.join(checkpoints_dir,'vgg19_bn-c79401a0.pth'),
+    'vgg11': os.path.join(checkpoints_dir, 'vgg11-bbd30ac9.pth'),
+    'vgg13': os.path.join(checkpoints_dir, 'vgg13-c768596a.pth'),
+    'vgg16': os.path.join(checkpoints_dir, 'vgg16-397923af.pth'),
+    'vgg19': os.path.join(checkpoints_dir, 'vgg19-dcbb9e9d.pth'),
+    'vgg11_bn': os.path.join(checkpoints_dir, 'vgg11_bn-6002323d.pth'),
+    'vgg13_bn': os.path.join(checkpoints_dir, 'vgg13_bn-abd245e5.pth'),
+    'vgg16_bn': os.path.join(checkpoints_dir, 'vgg16_bn-6c64b313.pth'),
+    'vgg19_bn': os.path.join(checkpoints_dir, 'vgg19_bn-c79401a0.pth'),
 }
 
 
@@ -105,11 +105,13 @@ cfgs = {
     'E': [64, 64, 'M', 128, 128, 'M', 256, 256, 256, 256, 'M', 512, 512, 512, 512, 'M', 512, 512, 512, 512, 'M'],
 }
 
+
 class DownloadProgressBar(tqdm):
     def update_to(self, b=1, bsize=1, tsize=None):
         if tsize is not None:
             self.total = tsize
         self.update(b * bsize - self.n)
+
 
 def download_arch_if_not_exists(arch):
     if not os.path.exists(model_paths[arch]):
@@ -122,6 +124,7 @@ def download_arch_if_not_exists(arch):
         output_path = os.path.join(checkpoints_dir, filename)
         with DownloadProgressBar(unit='B', unit_scale=True, miniters=1, desc=url.split('/')[-1]) as t:
             urllib.request.urlretrieve(url, filename=output_path, reporthook=t.update_to)
+
 
 def _vgg(arch, cfg, batch_norm, pretrained, progress, sync=False, **kwargs):
     if pretrained:

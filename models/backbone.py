@@ -2,14 +2,11 @@
 """
 Backbone modules.
 """
-from collections import OrderedDict
 
-import torch
-import torch.nn.functional as F
-import torchvision
 from torch import nn
 
 import models.vgg_ as models
+
 
 class BackboneBase_VGG(nn.Module):
     def __init__(self, backbone: nn.Module, num_channels: int, name: str, return_interm_layers: bool):
@@ -51,6 +48,7 @@ class BackboneBase_VGG(nn.Module):
 
 class Backbone_VGG(BackboneBase_VGG):
     """ResNet backbone with frozen BatchNorm."""
+
     def __init__(self, name: str, return_interm_layers: bool):
         if name == 'vgg16_bn':
             backbone = models.vgg16_bn(pretrained=True)
@@ -63,6 +61,7 @@ class Backbone_VGG(BackboneBase_VGG):
 def build_backbone(args):
     backbone = Backbone_VGG(args.backbone, True)
     return backbone
+
 
 if __name__ == '__main__':
     Backbone_VGG('vgg16', True)

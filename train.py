@@ -1,19 +1,18 @@
 import argparse
 import datetime
+import os
 import random
-import time
-from pathlib import Path
+import warnings
 
-import torch
-from torch.utils.data import DataLoader, DistributedSampler
+from tensorboardX import SummaryWriter
+from torch.utils.data import DataLoader
 
 from crowd_datasets import build_dataset
 from engine import *
 from models import build_model
-import os
-from tensorboardX import SummaryWriter
-import warnings
+
 warnings.filterwarnings('ignore')
+
 
 def get_args_parser():
     parser = argparse.ArgumentParser('Set parameters for training P2PNet', add_help=False)
@@ -55,7 +54,7 @@ def get_args_parser():
     parser.add_argument('--dataset_file', default='SHHA')
     parser.add_argument('--data_root', default='./datasets',
                         help='path where the dataset is')
-    
+
     parser.add_argument('--output_dir', default='./logs',
                         help='path where to save, empty for no saving')
     parser.add_argument('--vis_dir', default='',
@@ -78,15 +77,17 @@ def get_args_parser():
 
     return parser
 
+
 def set_seed(seed):
     random.seed(seed)
     np.random.seed(seed)
-    torch.manual_seed(seed) # CPU
-    torch.cuda.manual_seed(seed) # GPU
-    torch.cuda.manual_seed_all(seed) # All GPU
-    os.environ['PYTHONHASHSEED'] = str(seed) # 禁止hash随机化
-    torch.backends.cudnn.deterministic = True # 确保每次返回的卷积算法是确定的
-    torch.backends.cudnn.benchmark = False # True的话会自动寻找最适合当前配置的高效算法，来达到优化运行效率的问题。False保证实验结果可
+    torch.manual_seed(seed)  # CPU
+    torch.cuda.manual_seed(seed)  # GPU
+    torch.cuda.manual_seed_all(seed)  # All GPU
+    os.environ['PYTHONHASHSEED'] = str(seed)  # 禁止hash随机化
+    torch.backends.cudnn.deterministic = True  # 确保每次返回的卷积算法是确定的
+    torch.backends.cudnn.benchmark = False  # True的话会自动寻找最适合当前配置的高效算法，来达到优化运行效率的问题。False保证实验结果可
+
 
 def main(args):
     os.environ["CUDA_VISIBLE_DEVICES"] = '{}'.format(args.gpu_id)
@@ -156,7 +157,7 @@ def main(args):
                                    collate_fn=utils.collate_fn_crowd, num_workers=args.num_workers)
 
     data_loader_val = DataLoader(val_set, 1, sampler=sampler_val,
-                                    drop_last=False, collate_fn=utils.collate_fn_crowd, num_workers=args.num_workers)
+                                 drop_last=False, collate_fn=utils.collate_fn_crowd, num_workers=args.num_workers)
 
     # fix bug: RuntimeError: received 0 items of ancdata
     torch.multiprocessing.set_sharing_strategy('file_system')
@@ -188,7 +189,6 @@ def main(args):
     # the logger writer
     writer = SummaryWriter(log_dir)
 
-
     # training starts here
     for epoch in range(args.start_epoch, args.epochs):
         t1 = time.time()
@@ -211,7 +211,6 @@ def main(args):
             writer.add_scalar('loss/loss', stat['loss'], epoch)
             writer.add_scalar('loss/loss_ce', stat['loss_ce'], epoch)
 
-
         # change lr according to the scheduler
         lr_scheduler.step()
 
@@ -230,10 +229,13 @@ def main(args):
 
             # print the evaluation results
             print('=======================================test=======================================')
-            print("val-- ", "mae:", result[0], "mse:", result[1], "time:", t2 - t1, "best mae:", best_mae, "best epoch:", best_epoch,)
+            print("val-- ", "mae:", result[0], "mse:", result[1], "time:", t2 - t1, "best mae:", best_mae,
+                  "best epoch:", best_epoch, )
             with open(run_log_name, "a") as log_file:
                 log_file.write("val-- mae:{}, mse:{}, time:{}, best mae:{}, best epoch:{} \n".format(result[0],
-                                result[1], t2 - t1, best_mae, best_epoch))
+                                                                                                     result[1], t2 - t1,
+                                                                                                     best_mae,
+                                                                                                     best_epoch))
             print('=======================================test=======================================')
             # recored the evaluation results
             if writer is not None:
@@ -255,7 +257,7 @@ def main(args):
         checkpoint_latest_path = os.path.join(log_dir, 'latest.pth')
         torch.save({
             'model': model_without_ddp.state_dict(),
-            'optimizer':optimizer.state_dict(),
+            'optimizer': optimizer.state_dict(),
             'lr_scheduler': lr_scheduler.state_dict(),
             'step': step,
             'epoch': epoch,
@@ -267,6 +269,7 @@ def main(args):
     total_time = time.time() - start_time
     total_time_str = str(datetime.timedelta(seconds=int(total_time)))
     print('Training time {}'.format(total_time_str))
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser('P2PNet training and evaluation script', parents=[get_args_parser()])

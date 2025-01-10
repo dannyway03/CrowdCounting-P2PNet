@@ -1,10 +1,12 @@
+import argparse
+import warnings
+from pathlib import Path
+
+import onnx
+import onnxsim
+
 from engine import *
 from models import build_model
-
-import argparse
-from pathlib import Path
-import onnx, onnxsim
-import warnings
 
 warnings.filterwarnings('ignore')
 

@@ -1,6 +1,7 @@
-from scipy.io import loadmat
-import os
 import argparse
+import os
+
+from scipy.io import loadmat
 
 
 def get_points(root_path, mat_path):
@@ -11,7 +12,7 @@ def get_points(root_path, mat_path):
 def get_image_list(root_path, sub_path):
     images_path = os.path.join(root_path, sub_path, 'images')
     images = [os.path.join(images_path, im) for im in
-os.listdir(os.path.join(root_path, images_path)) if 'jpg' in im]
+              os.listdir(os.path.join(root_path, images_path)) if 'jpg' in im]
     return images
 
 
@@ -44,7 +45,7 @@ def export_dataset(root_path, part_name, output_path):
 
             # for each image, generate a txt file with annotations
             new_labels_file = os.path.join(output_path, sub_path,
-os.path.basename(image_path).replace('jpg', 'txt'))
+                                           os.path.basename(image_path).replace('jpg', 'txt'))
             with open(new_labels_file, 'w') as fp:
                 for p in gt:
                     fp.write('{} {}\n'.format(p[0], p[1]))
@@ -52,7 +53,7 @@ os.path.basename(image_path).replace('jpg', 'txt'))
 
         # generate file with listing
         with open(os.path.join(output_path, part_folder,
-'{}.list'.format(split)), 'w') as fp:
+                               '{}.list'.format(split)), 'w') as fp:
             for item in list_file:
                 fp.write('{} {}\n'.format(item[0], item[1]))
 

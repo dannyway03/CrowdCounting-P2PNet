@@ -8,14 +8,13 @@ import os
 import sys
 from typing import Iterable
 
+import cv2
+import numpy as np
 import torch
+import torchvision.transforms as standard_transforms
 
 import util.misc as utils
-from util.misc import NestedTensor
-import numpy as np
-import time
-import torchvision.transforms as standard_transforms
-import cv2
+
 
 class DeNormalize(object):
     def __init__(self, mean, std):
@@ -26,6 +25,7 @@ class DeNormalize(object):
         for t, m, s in zip(tensor, self.mean, self.std):
             t.mul_(s).add_(m)
         return tensor
+
 
 def vis(samples, targets, pred, vis_dir, des=None):
     '''
@@ -61,10 +61,12 @@ def vis(samples, targets, pred, vis_dir, des=None):
         name = targets[idx]['image_id']
         # save the visualized images
         if des is not None:
-            cv2.imwrite(os.path.join(vis_dir, '{}_{}_gt_{}_pred_{}_gt.jpg'.format(int(name), 
-                                                des, len(gts[idx]), len(pred[idx]))), sample_gt)
-            cv2.imwrite(os.path.join(vis_dir, '{}_{}_gt_{}_pred_{}_pred.jpg'.format(int(name), 
-                                                des, len(gts[idx]), len(pred[idx]))), sample_pred)
+            cv2.imwrite(os.path.join(vis_dir, '{}_{}_gt_{}_pred_{}_gt.jpg'.format(int(name),
+                                                                                  des, len(gts[idx]), len(pred[idx]))),
+                        sample_gt)
+            cv2.imwrite(os.path.join(vis_dir, '{}_{}_gt_{}_pred_{}_pred.jpg'.format(int(name),
+                                                                                    des, len(gts[idx]),
+                                                                                    len(pred[idx]))), sample_pred)
         else:
             cv2.imwrite(
                 os.path.join(vis_dir, '{}_gt_{}_pred_{}_gt.jpg'.format(int(name), len(gts[idx]), len(pred[idx]))),
@@ -72,6 +74,7 @@ def vis(samples, targets, pred, vis_dir, des=None):
             cv2.imwrite(
                 os.path.join(vis_dir, '{}_gt_{}_pred_{}_pred.jpg'.format(int(name), len(gts[idx]), len(pred[idx]))),
                 sample_pred)
+
 
 # the training routine
 def train_one_epoch(model: torch.nn.Module, criterion: torch.nn.Module,
@@ -120,6 +123,7 @@ def train_one_epoch(model: torch.nn.Module, criterion: torch.nn.Module,
     print("Averaged stats:", metric_logger)
     return {k: meter.global_avg for k, meter in metric_logger.meters.items()}
 
+
 # the inference routine
 @torch.no_grad()
 def evaluate_crowd_no_overlap(model, data_loader, device, vis_dir=None):
@@ -145,7 +149,7 @@ def evaluate_crowd_no_overlap(model, data_loader, device, vis_dir=None):
         points = outputs_points[outputs_scores > threshold].detach().cpu().numpy().tolist()
         predict_cnt = int((outputs_scores > threshold).sum())
         # if specified, save the visualized images
-        if vis_dir is not None: 
+        if vis_dir is not None:
             vis(samples, targets, [points], vis_dir)
         # accumulate MAE, MSE
         mae = abs(predict_cnt - gt_cnt)
