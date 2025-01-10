@@ -51,11 +51,11 @@ def main(args, debug=False):
         model.load_state_dict(checkpoint['model'])
     model.eval()
 
-    input_tensor = torch.rand((1, 3, 768, 1280), dtype=torch.float32).to(device)
+    input_tensor = torch.rand((1, 3, 576, 960), dtype=torch.float32).to(device)
     out = model(input_tensor)
 
     if args.onnx_filename is None:
-        args.onnx_filename = Path(args.weights).stem + '.onnx'
+        args.onnx_filename = Path(args.weights).stem + '_576x960.onnx'
 
     export_onnx(model, input_tensor, '/'.join(['./weights/onnx', args.onnx_filename]), opset_version=13, dynamic=False)
 

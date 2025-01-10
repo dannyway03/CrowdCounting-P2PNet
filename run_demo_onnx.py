@@ -19,26 +19,27 @@ def process_one_image(dir_path, img_name, transform, session):#此函数默认ba
     img = transform(img_raw)
     samples = torch.Tensor(img).unsqueeze(0)
 
-    # 定义模型输入，进行推理
-    t1 = time.time()
-
     cnt = 0
-    while cnt < 10:
+    while cnt < 1000:
+        t1 = time.time()
+
         ort_inputs = {'images': samples.numpy()}
         pred_logits, pred_points = session.run(['pred_logits', 'pred_points'], ort_inputs)
-        # 推理结果
 
         outputs_scores = torch.nn.functional.softmax(torch.Tensor(pred_logits), -1)[:, :, 1][0]
-
         outputs_points = torch.Tensor(pred_points[0])
         threshold = 0.5
         # filter the predictions
         points = outputs_points[outputs_scores > threshold].detach().cpu().numpy().tolist()
         predict_cnt = int((outputs_scores > threshold).sum())
+
+        t2 = time.time()
+        print('time: {}'.format(t2 - t1))
+
         cnt+=1
 
-    t2 = time.time()
-    print('{} spend time: {}'.format(img_name, (t2 - t1)/cnt))
+
+
 
     # draw the predictions
     size = 2
