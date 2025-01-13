@@ -79,7 +79,8 @@ def get_args_parser():
                         help='path where to read images')
     parser.add_argument('--output_dir', default='',
                         help='path where to save')
-    parser.add_argument('--weight_path', default='/home/nicola/Software/CrowdCounting-P2PNet/weights/onnx/SHTechA.onnx',
+    parser.add_argument('--weight_path',
+                        default='/home/nicola/Software/CrowdCounting-P2PNet/weights/onnx/SHTechA_1x3x576x960.onnx',
                         help='path where the trained weights saved')
 
     parser.add_argument('--cuda', action='store_true', help='if use cuda')
@@ -88,6 +89,6 @@ def get_args_parser():
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser('P2PNet_onnx evaluation script', parents=[get_args_parser()])
-    args = parser.parse_args()
+    m_parser = argparse.ArgumentParser('P2PNet_onnx evaluation script', parents=[get_args_parser()])
+    args = m_parser.parse_args()
     main(args)

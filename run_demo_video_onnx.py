@@ -56,8 +56,7 @@ def gaussian_filter_density(img_shape, points):
     return density
 
 
-def process_one_image(samples, transform, session):  # 此函数默认batch_size为1
-
+def process_frame(samples, session):
     ort_inputs = {'images': samples.numpy()}
     pred_logits, pred_points = session.run(['pred_logits', 'pred_points'], ort_inputs)
 
@@ -72,13 +71,11 @@ def process_one_image(samples, transform, session):  # 此函数默认batch_size
 
 
 def main(args):
-    # 读取模型
     weight_path = args.weight_path
     providers = ['CPUExecutionProvider']
     session = ort.InferenceSession(weight_path, providers=providers)
     b, c, h, w = session.get_inputs()[0].shape
 
-    # 定义数据预处理的正则化部分
     transform = standard_transforms.Compose([
         standard_transforms.ToTensor(),
         standard_transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
@@ -100,7 +97,7 @@ def main(args):
 
             img = transform(frame_)
             samples = torch.Tensor(img).unsqueeze(0)
-            points, count = process_one_image(samples, transform, session)
+            points, count = process_frame(samples, session)
 
             t2 = time.time()
             print('time: {}'.format(t2 - t1), flush=True)
@@ -135,10 +132,10 @@ def get_args_parser():
     parser = argparse.ArgumentParser('Set parameters for P2PNet evaluation by onnx', add_help=False)
 
     parser.add_argument('--input_video', default='/home/nicola/Software/CrowdCounting-P2PNet/testData/demo.mp4',
-                        help='path where to read images')
+                        help='path to input video')
     parser.add_argument('--weight_path',
-                        default='/home/nicola/Software/CrowdCounting-P2PNet/weights/onnx/SHTechA_576x960.onnx',
-                        help='path where the trained weights saved')
+                        default='/home/nicola/Software/CrowdCounting-P2PNet/weights/onnx/SHTechA_1x3x576x960.onnx',
+                        help='Path to onnx model')
     return parser
 
 

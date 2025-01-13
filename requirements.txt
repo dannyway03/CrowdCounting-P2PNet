@@ -2,7 +2,9 @@ torch
 torchvision
 tensorboardX
 onnx
+onnxruntime
 onnxsim
+onnxoptimizer
 easydict
 pandas
 numpy
